@@ -21,6 +21,17 @@ bomb_rect = bomb_image.get_rect()
 bomb_spawn_interval = 3000  # ボムの出現間隔（ミリ秒）
 next_bomb_spawn_time = 0
 
+def back():
+    """
+    画像の描画関数
+    """
+    # 背景画像の描画
+    screen.blit(background, (0, 0))
+
+    # ボムの描画
+    screen.blit(bomb_image, (bomb_x, bomb_y))
+
+
 bombs = []
 
 # ボムの位置と速度
@@ -47,11 +58,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # 背景画像の描画
-    screen.blit(background, (0, 0))
-
-    # ボムの描画
-    screen.blit(bomb_image, (bomb_x, bomb_y))
+    back()
 
     # ボムの位置更新
     bomb_x += (bomb_speed_x * 0.5)
