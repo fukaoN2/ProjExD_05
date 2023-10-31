@@ -14,6 +14,10 @@ pygame.display.set_caption("ボムへいをわけろ！")
 # 背景画像の読み込み
 background = pygame.image.load("ex05/deta/background.png")
 
+#背景音楽の読み込み
+pygame.mixer.music.load("ex05/deta/BGM.mp3")
+pygame.mixer.music.play(-1)
+
 # ボムの設定
 bomb_image = pygame.image.load("ex05/deta/bom1.png")
 bomb_image = pygame.transform.rotozoom(bomb_image, 0, 0.05)
