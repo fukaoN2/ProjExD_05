@@ -28,6 +28,17 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+    #通常フィールド(実装時には要らないが反射確認のために描画)
+    pygame.draw.rect(background,(0,0,255),(24,72,720,480))
+
+    #安全地帯の黄色の枠
+    pygame.draw.rect(background,(255,241,0),(555,170,189,240))
+    pygame.draw.rect(background,(255,241,0),(24,170,190,240))
+
+    #安全地帯の黒と赤の四角
+    pygame.draw.rect(background,(0,0,0),(575,190,170,200))
+    pygame.draw.rect(background,(255,0,0),(24,190,169,200))
     
     # 背景画像の描画
     screen.blit(background, (0, 0))
