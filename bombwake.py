@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+import time
 
 # Pygameの初期化
 pygame.init()
@@ -36,6 +37,18 @@ bomb_y = 0
 bomb_speed_x = 0
 bomb_speed_y = 0
 
+# ボムクラスを定義
+class Bomb:
+    def __init__(self, x, y, speed_x, speed_y, created_time):
+        self.x = x
+        self.y = y
+        self.speed_x = speed_x
+        self.speed_y = speed_y
+        self.created_time = created_time
+
+# ボムのリスト
+bombs = []
+
 def back():
     """
     画像の描画関数
@@ -43,7 +56,7 @@ def back():
     # 背景画像の描画
     screen.blit(background, (0, 0))
 
-def bomb_mvdef():
+def bomb_mvdef(bomb):
     global bomb_x, bomb_y, bomb_speed_x, bomb_speed_y
 
     # フレームごとの移動距離を計算
@@ -94,10 +107,26 @@ def bomb_mvdef():
     if 543 <= bomb_x <= 563 and 170 <= bomb_y <= 390 and bomb_speed_x > 0:
         bomb_speed_x *= -1
 
-
     # ボムの描画
     screen.blit(bomb_image, (bomb_x, bomb_y))
 
+# ボム生成用の関数
+def create_bomb():
+    bomb_x = random.randint(bomb_rect.width // 2, screen_width - bomb_rect.width // 2)
+    bomb_y = random.randint(bomb_rect.height // 2, screen_height - bomb_rect.height // 2)
+    while True:
+        bomb_speed_x = random.uniform(-1, 1)
+        if bomb_speed_x != 0:
+            break
+    while True:
+        bomb_speed_y = random.uniform(-1, 1)
+        if bomb_speed_y != 0:
+            break
+    d = round(1 / (bomb_speed_x**2 + bomb_speed_y**2), 1)
+    a = math.sqrt(abs(d))
+    bomb_speed_x *= a
+    bomb_speed_y *= a
+    bombs.append(Bomb(bomb_x, bomb_y, bomb_speed_x, bomb_speed_y, time.time()))
 def safezone_def():
     # # 外枠の描画(実装時に削除・反射を確認するために描画)
     # pygame.draw.rect(background,(0,0,255),(24,76,750,498))
@@ -117,8 +146,6 @@ def safezone_def():
     # 安全地帯の黒と赤の格子の描画
     screen.blit(black_floor, (604, 204))
     screen.blit(red_floor, (24, -19))
-
-bombs = []
 
 # ボムの位置と速度
 bomb_x = screen_width // 2 - bomb_rect.width // 2  # 画面の中央部分に配置
@@ -149,9 +176,17 @@ while running:
 
     safezone_def()
 
-    bomb_mvdef()
+    # 新しいボムを生成するタイミングを管理
+    current_time = time.time()
+    if current_time - next_bomb_spawn_time > bomb_spawn_interval / 1000:
+        create_bomb()
+        next_bomb_spawn_time = current_time
 
-
+    # ボムを移動して描画
+    for bomb in bombs:
+        bomb_mvdef(bomb)
+        if current_time - bomb.created_time > 5:  # 5秒経過でボムを消去
+            bombs.remove(bomb)
 
     # 画面更新
     pygame.display.update()
