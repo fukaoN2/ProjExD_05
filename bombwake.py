@@ -22,7 +22,7 @@ background = pygame.image.load("ex05/data/background.png")
 bomb_image = pygame.image.load("ex05/data/bom1.png")
 bomb_image = pygame.transform.rotozoom(bomb_image, 0, 0.11)
 bomb_rect = bomb_image.get_rect()
-bomb_spawn_interval = 3000  # ボムの出現間隔（ミリ秒）
+bomb_spawn_interval = 3000  # ボムの出現間隔(ミリ秒)
 next_bomb_spawn_time = 0
 
 # ボムの位置と速度
