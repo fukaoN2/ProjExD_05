@@ -5,28 +5,51 @@ import random
 pygame.init()
 
 # 画面の設定
-screen_width = 800
-screen_height = 600
+screen_width = 768
+screen_height = 575
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("ボムへいをわけろ！")
 
+class Bomb(pygame.sprite.Sprite):
+    """
+    ゲームキャラクターボム兵に関するクラス
+    """
+
+    def __init__(self):
+        """
+        ボム兵画像Surfaceを生成する
+        引数1 num：ボム兵画像ファイル名の番号
+        """
+        super().__init__()
+        bomb_image = pygame.transform.rotozoom(pygame.image.load("ex05/deta/bom1.png"), 0, 0.05)
+        self.image = bomb_image
+        self.rect = bomb_image.get_rect()
+        # ボムの位置と速度
+        bomb_x = screen_width/2
+        bomb_y = 10
+        self.bomb_speed_x = random.randint(-1, 1)
+        self.bomb_speed_y = random.random()
+        self.bomb_vx = (self.bomb_speed_x * 0.08) + bomb_x
+        self.bomb_vy = (self.bomb_speed_y * 0.08) + bomb_y
+
+    def update(self):
+        """
+        ボム兵を速度ベクトルself.vx, self.vyに基づき移動させる
+        引数 screen：画面Surface
+        """
+        self.rect.move_ip(self.bomb_vx, self.bomb_vy * 0.08)
+
+
 # 背景画像の読み込み
-background = pygame.image.load("background.jpg")
+background = pygame.image.load("ex05/deta/background.png")
 
 # ボムの設定
-bomb_image = pygame.image.load("bomb.png")
-bomb_rect = bomb_image.get_rect()
+
 bomb_spawn_interval = 3000  # ボムの出現間隔（ミリ秒）
 next_bomb_spawn_time = 0
 
-# ボムの位置と速度
-bomb_x = random.randint(100, screen_width - 100)
-bomb_y = random.randint(100, screen_height - 100)
-bomb_speed_x = random.randint(1, 3)
-bomb_speed_y = random.randint(1, 3)
-
-# 安全地帯の設定
-safe_zone = pygame.Rect(200, 200, screen_width - 400, screen_height - 400)
+# ボムのグループを作成
+bombs = pygame.sprite.Group()
 
 # ゲームループ
 running = True
@@ -38,35 +61,17 @@ while running:
     # 背景画像の描画
     screen.blit(background, (0, 0))
 
-    # ボムの描画
-    screen.blit(bomb_image, (bomb_x, bomb_y))
-
-    # ボムの位置更新
-    bomb_x += bomb_speed_x
-    bomb_y += bomb_speed_y
-
-    # ボムが壁に当たった場合の反射
-    if bomb_x < 0 or bomb_x > screen_width - bomb_rect.width:
-        bomb_speed_x *= -1
-    if bomb_y < 0 or bomb_y > screen_height - bomb_rect.height:
-        bomb_speed_y *= -1
-
-    # ボムが安全地帯に入った場合の位置更新
-    if not safe_zone.collidepoint(bomb_x, bomb_y):
-        # ボムが安全地帯外に出た場合、ランダムな位置に再配置
-        bomb_x = random.randint(100, screen_width - 100)
-        bomb_y = random.randint(100, screen_height - 100)
-        bomb_speed_x = random.randint(1, 3)
-        bomb_speed_y = random.randint(1, 3)
-
-    # ボムの出現間隔を管理
+    # ボムの出現処理
     current_time = pygame.time.get_ticks()
-    if current_time > next_bomb_spawn_time:
-        bomb_x = random.randint(100, screen_width - 100)
-        bomb_y = random.randint(100, screen_height - 100)
-        bomb_speed_x = random.randint(1, 3)
-        bomb_speed_y = random.randint(1, 3)
+    if current_time >= next_bomb_spawn_time:
+        bomb = Bomb()
+        bombs.add(bomb)
+        # 次の出現時間を設定する
         next_bomb_spawn_time = current_time + bomb_spawn_interval
+
+    # ボムの更新と描画
+    bombs.update()
+    bombs.draw(screen)
 
     # 画面更新
     pygame.display.update()
