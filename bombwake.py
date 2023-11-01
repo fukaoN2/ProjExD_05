@@ -6,20 +6,30 @@ import math
 pygame.init()
 
 # 画面の設定
-screen_width = 768
-screen_height = 575
+screen_width = 800
+screen_height = 600
+fps = 500
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("ボムへいをわけろ！")
 
+# フレームを管理する時計をclockに格納
+clock = pygame.time.Clock()
+
 # 背景画像の読み込み
-background = pygame.image.load("ex05/deta/background.png")
+background = pygame.image.load("ex05/data/background.png")
 
 # ボムの設定
-bomb_image = pygame.image.load("ex05/deta/bom1.png")
-bomb_image = pygame.transform.rotozoom(bomb_image, 0, 0.05)
+bomb_image = pygame.image.load("ex05/data/bom1.png")
+bomb_image = pygame.transform.rotozoom(bomb_image, 0, 0.11)
 bomb_rect = bomb_image.get_rect()
 bomb_spawn_interval = 3000  # ボムの出現間隔（ミリ秒）
 next_bomb_spawn_time = 0
+
+# ボムの位置と速度
+bomb_x = screen_width // 2 - bomb_rect.width // 2  # 画面の中央部分に配置
+bomb_y = 0
+bomb_speed_x = 0
+bomb_speed_y = 0
 
 def back():
     """
@@ -27,6 +37,33 @@ def back():
     """
     # 背景画像の描画
     screen.blit(background, (0, 0))
+
+def bomb_mvdef():
+    global bomb_x, bomb_y, bomb_speed_x, bomb_speed_y
+
+    # フレームごとの移動距離を計算
+    time_passed = clock.tick(fps)
+    seconds = time_passed / 3000.0  # フレームレートで割って秒に変換
+    mv_x = bomb_speed_x * seconds * fps
+    mv_y = bomb_speed_y * seconds * fps
+
+    bomb_x += mv_x
+    bomb_y += mv_y
+
+    # ボムの位置更新前に壁との衝突をチェック
+    new_bomb_x = bomb_x + mv_x
+    new_bomb_y = bomb_y + mv_y
+
+    # 壁との衝突チェック
+    if new_bomb_x < 0 or new_bomb_x > screen_width - bomb_rect.width:
+        bomb_speed_x *= -1
+    else:
+        bomb_x = new_bomb_x
+
+    if new_bomb_y < 0 or new_bomb_y > screen_height - bomb_rect.height:
+        bomb_speed_y *= -1
+    else:
+        bomb_y = new_bomb_y
 
     # ボムの描画
     screen.blit(bomb_image, (bomb_x, bomb_y))
@@ -47,7 +84,8 @@ while(True):
     if not(b == 0):
         bomb_speed_y = b
         break
-a = math.sqrt(abs(1/(bomb_speed_x**2)+(bomb_speed_y**2)))
+d = round(1/(bomb_speed_x**2)+(bomb_speed_y**2), 1)
+a = math.sqrt(abs(d))
 bomb_speed_x = bomb_speed_x * a
 bomb_speed_y = bomb_speed_y * a
 
@@ -60,23 +98,11 @@ while running:
 
     back()
 
-    # ボムの位置更新
-    bomb_x += (bomb_speed_x * 0.5)
-    bomb_y += (bomb_speed_y * 0.5)
-
-    # ボムが壁に当たった場合の反射
-    if bomb_x < 0 or bomb_x > screen_width - bomb_rect.width:
-        bomb_speed_x *= -1
-    if bomb_y < 0 or bomb_y > screen_height - bomb_rect.height:
-        bomb_speed_y *= -1
-
-    # ボムの位置更新
-    bomb_x += (bomb_speed_x * 0.5)
-    bomb_y += (bomb_speed_y * 0.5)
-
+    bomb_mvdef()
 
     # 画面更新
     pygame.display.update()
+    clock.tick(fps)
 
 # Pygameの終了
 pygame.quit()
