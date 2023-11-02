@@ -47,9 +47,9 @@ class Bomb:
         while self.speed_x == 0:
             self.speed_x = random.randint(-1, 1)
 
-        self.speed_y = random.uniform(-1, 1)
+        self.speed_y = random.random()
         while self.speed_y == 0:
-            self.speed_y = random.uniform(-1, 1)
+            self.speed_y = random.random()
 
         d = round(1 / (self.speed_x ** 2 + self.speed_y ** 2), 1)
         a = math.sqrt(abs(d))
@@ -66,6 +66,7 @@ def back():
     # 背景画像の描画
     screen.blit(background, (0, 0))
 
+# ボムの移動に関する関数
 def bomb_mvdef(bomb):
     # フレームごとの移動距離を計算
     time_passed = clock.tick(fps)
@@ -95,27 +96,28 @@ def bomb_mvdef(bomb):
     else:
         bomb.y = new_bomb_y
 
-    # 赤側上辺
+    # ボムがsafezoneに接触したとき
+    # 赤側safezone上辺
     if 24 <= bomb.x <= 194 and 133 <= bomb.y <= 190 and bomb.speed_y > 0:
         bomb.speed_y *= -1
 
-    # 黒側上辺
+    # 黒側safezone上辺
     if 555 <= bomb.x <= 744 and 133 <= bomb.y <= 190 and bomb.speed_y > 0:
         bomb.speed_y *= -1
 
-    # 赤側底辺
+    # 赤側safezone底辺
     if 24 <= bomb.x <= 194 and 390 <= bomb.y <= 410 and bomb.speed_y < 0:
         bomb.speed_y *= -1
 
-    # 黒側底辺
+    # 黒側safezone底辺
     if 555 <= bomb.x <= 744 and 390 <= bomb.y <= 410 and bomb.speed_y < 0:
         bomb.speed_y *= -1
 
-    # 赤側右辺
+    # 赤側safezone右辺
     if 174 <= bomb.x <= 204 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
         bomb.speed_x *= -1
 
-    # 黒側左辺
+    # 黒側safezone左辺
     if 537 <= bomb.x <= 563 and 150 <= bomb.y <= 390 and bomb.speed_x > 0:
         bomb.speed_x *= -1
 
@@ -130,7 +132,7 @@ def safezone_def():
     # pygame.draw.rect(background,(255,241,0),(555,170,189,240))
     # pygame.draw.rect(background,(255,241,0),(24,170,190,240))
 
-    # 安全地帯の注意色の描画
+    # safezoneの注意色の描画
     screen.blit(yellow_floor, (583, 180))
     screen.blit(yellow_floor, (24, 180))
 
@@ -138,7 +140,7 @@ def safezone_def():
     # pygame.draw.rect(background,(0,0,0),(575,190,170,200))
     # pygame.draw.rect(background,(255,0,0),(24,190,169,200))
 
-    # 安全地帯の黒と赤の格子の描画
+    # 安全地帯内側の黒と赤の格子の描画
     screen.blit(black_floor, (604, 204))
     screen.blit(red_floor, (24, -19))
 
