@@ -9,7 +9,7 @@ pygame.init()
 # 画面の設定
 screen_width = 800
 screen_height = 600
-fps = 500
+fps = 50
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("ボムへいをわけろ！")
 
@@ -31,20 +31,30 @@ black_floor = pygame.image.load("ex05/data/black.png")
 red_floor = pygame.image.load("ex05/data/red.png")
 yellow_floor = pygame.image.load("ex05/data/yellow_lines.jpg")
 
-# ボムの位置と速度
-bomb_x = screen_width // 2 - bomb_rect.width // 2  # 画面の中央部分に配置
-bomb_y = 0
-bomb_speed_x = 0
-bomb_speed_y = 0
-
 # ボムクラスを定義
 class Bomb:
-    def __init__(self, x, y, speed_x, speed_y, created_time):
-        self.x = x
-        self.y = y
-        self.speed_x = speed_x
-        self.speed_y = speed_y
-        self.created_time = created_time
+    def __init__(self):
+        self.x = screen_width // 2 - bomb_rect.width // 2
+        self.y = 0
+        self.speed_x = 0  # 初期速度をゼロに設定
+        self.speed_y = 0  # 初期速度をゼロに設定
+        self.set_random_speed()
+        self.created_time = time.time()
+
+    def set_random_speed(self):
+        # ランダムな速度を設定
+        self.speed_x = random.randint(-1, 1)
+        while self.speed_x == 0:
+            self.speed_x = random.randint(-1, 1)
+
+        self.speed_y = random.uniform(-1, 1)
+        while self.speed_y == 0:
+            self.speed_y = random.uniform(-1, 1)
+
+        d = round(1 / (self.speed_x ** 2 + self.speed_y ** 2), 1)
+        a = math.sqrt(abs(d))
+        self.speed_x *= a
+        self.speed_y *= a
 
 # ボムのリスト
 bombs = []
@@ -57,76 +67,61 @@ def back():
     screen.blit(background, (0, 0))
 
 def bomb_mvdef(bomb):
-    global bomb_x, bomb_y, bomb_speed_x, bomb_speed_y
-
     # フレームごとの移動距離を計算
     time_passed = clock.tick(fps)
     seconds = time_passed / 3000.0  # フレームレートで割って秒に変換
-    mv_x = bomb_speed_x * seconds * fps
-    mv_y = bomb_speed_y * seconds * fps
+    mv_x = bomb.speed_x * seconds * fps * 10
+    mv_y = bomb.speed_y * seconds * fps * 10
 
-    bomb_x += mv_x
-    bomb_y += mv_y
+    # # デバッグ情報の速度情報を表示
+    # print(f"Bomb speed: {mv_x}, {mv_y}")
+
+
+    bomb.x += mv_x
+    bomb.y += mv_y
 
     # ボムの位置更新前に壁との衝突をチェック
-    new_bomb_x = bomb_x + mv_x
-    new_bomb_y = bomb_y + mv_y
+    new_bomb_x = bomb.x + mv_x
+    new_bomb_y = bomb.y + mv_y
 
     # 壁との衝突チェック
     if new_bomb_x < 24 or new_bomb_x > 774 - bomb_rect.width:
-        bomb_speed_x *= -1
+        bomb.speed_x *= -1
     else:
-        bomb_x = new_bomb_x
+        bomb.x = new_bomb_x
 
-    if (new_bomb_y < 76 and bomb_speed_y < 0) or new_bomb_y > 574 - bomb_rect.height:
-        bomb_speed_y *= -1
+    if (new_bomb_y < 76 and bomb.speed_y < 0) or new_bomb_y > 574 - bomb_rect.height:
+        bomb.speed_y *= -1
     else:
-        bomb_y = new_bomb_y
+        bomb.y = new_bomb_y
 
     # 赤側上辺
-    if 24 <= bomb_x <= 194 and 110 <= bomb_y <= 170 and bomb_speed_y > 0:
-        bomb_speed_y *= -1
+    if 24 <= bomb.x <= 194 and 133 <= bomb.y <= 190 and bomb.speed_y > 0:
+        bomb.speed_y *= -1
 
     # 黒側上辺
-    if 555 <= bomb_x <= 744 and 110 <= bomb_y <= 170 and bomb_speed_y > 0:
-        bomb_speed_y *= -1
+    if 555 <= bomb.x <= 744 and 133 <= bomb.y <= 190 and bomb.speed_y > 0:
+        bomb.speed_y *= -1
 
     # 赤側底辺
-    if 24 <= bomb_x <= 194 and 390<= bomb_y <= 410 and bomb_speed_y < 0:
-        bomb_speed_y *= -1
+    if 24 <= bomb.x <= 194 and 390 <= bomb.y <= 410 and bomb.speed_y < 0:
+        bomb.speed_y *= -1
 
     # 黒側底辺
-    if 555 <= bomb_x <= 744 and 390<= bomb_y <= 410 and bomb_speed_y < 0:
-        bomb_speed_y *= -1
+    if 555 <= bomb.x <= 744 and 390 <= bomb.y <= 410 and bomb.speed_y < 0:
+        bomb.speed_y *= -1
 
     # 赤側右辺
-    if 194 <= bomb_x <= 214 and 170 <= bomb_y <= 390 and bomb_speed_x < 0:
-        bomb_speed_x *= -1
+    if 174 <= bomb.x <= 204 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
+        bomb.speed_x *= -1
 
     # 黒側左辺
-    if 543 <= bomb_x <= 563 and 170 <= bomb_y <= 390 and bomb_speed_x > 0:
-        bomb_speed_x *= -1
+    if 537 <= bomb.x <= 563 and 150 <= bomb.y <= 390 and bomb.speed_x > 0:
+        bomb.speed_x *= -1
 
     # ボムの描画
-    screen.blit(bomb_image, (bomb_x, bomb_y))
+    screen.blit(bomb_image, (bomb.x, bomb.y))
 
-# ボム生成用の関数
-def create_bomb():
-    bomb_x = random.randint(bomb_rect.width // 2, screen_width - bomb_rect.width // 2)
-    bomb_y = random.randint(bomb_rect.height // 2, screen_height - bomb_rect.height // 2)
-    while True:
-        bomb_speed_x = random.uniform(-1, 1)
-        if bomb_speed_x != 0:
-            break
-    while True:
-        bomb_speed_y = random.uniform(-1, 1)
-        if bomb_speed_y != 0:
-            break
-    d = round(1 / (bomb_speed_x**2 + bomb_speed_y**2), 1)
-    a = math.sqrt(abs(d))
-    bomb_speed_x *= a
-    bomb_speed_y *= a
-    bombs.append(Bomb(bomb_x, bomb_y, bomb_speed_x, bomb_speed_y, time.time()))
 def safezone_def():
     # # 外枠の描画(実装時に削除・反射を確認するために描画)
     # pygame.draw.rect(background,(0,0,255),(24,76,750,498))
@@ -147,24 +142,6 @@ def safezone_def():
     screen.blit(black_floor, (604, 204))
     screen.blit(red_floor, (24, -19))
 
-# ボムの位置と速度
-bomb_x = screen_width // 2 - bomb_rect.width // 2  # 画面の中央部分に配置
-bomb_y = 0
-while(True):
-    c = random.randint(-1, 1)
-    if not(c == 0):
-        bomb_speed_x = c
-        break
-while(True):
-    b = random.random()
-    if not(b == 0):
-        bomb_speed_y = b
-        break
-d = round(1/(bomb_speed_x**2)+(bomb_speed_y**2), 1)
-a = math.sqrt(abs(d))
-bomb_speed_x = bomb_speed_x * a
-bomb_speed_y = bomb_speed_y * a
-
 # ゲームループ
 running = True
 while running:
@@ -178,15 +155,19 @@ while running:
 
     # 新しいボムを生成するタイミングを管理
     current_time = time.time()
-    if current_time - next_bomb_spawn_time > bomb_spawn_interval / 1000:
-        create_bomb()
+    if current_time - next_bomb_spawn_time > bomb_spawn_interval / 500:
+        new_bomb = Bomb()  # 新しいボムのインスタンスを作成
+        bombs.append(new_bomb)  # ボムをリストに追加
         next_bomb_spawn_time = current_time
 
     # ボムを移動して描画
+    bombs_to_remove = []
     for bomb in bombs:
         bomb_mvdef(bomb)
-        if current_time - bomb.created_time > 5:  # 5秒経過でボムを消去
-            bombs.remove(bomb)
+        if current_time - bomb.created_time > 20:  # 20秒経過でボムを消去
+            bombs_to_remove.append(bomb)
+    for bomb in bombs_to_remove:
+        bombs.remove(bomb)
 
     # 画面更新
     pygame.display.update()
