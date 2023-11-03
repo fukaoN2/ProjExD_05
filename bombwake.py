@@ -142,6 +142,38 @@ def safezone_def():
     screen.blit(black_floor, (604, 204))
     screen.blit(red_floor, (24, -19))
 
+def safezone_pl(bomb):
+    if 24 <= bomb.x <= 174 and 163 <= bomb.y <= 380:
+        return
+    elif 555 <= bomb.x <= 744 and 163 <= bomb.y <= 380:
+        return
+
+def safezone_af(bomb):
+    # ボムがsafezoneに接触したとき
+    # 赤側safezone上辺
+    if 24 <= bomb.x <= 194 and 163 <= bomb.y <= 203 and bomb.speed_y < 0:
+        bomb.speed_y *= -1
+
+    # 黒側safezone上辺
+    if 555 <= bomb.x <= 744 and 133 <= bomb.y <= 203 and bomb.speed_y < 0:
+        bomb.speed_y *= -1
+
+    # 赤側safezone底辺
+    if 24 <= bomb.x <= 194 and 340 <= bomb.y <= 410 and bomb.speed_y > 0:
+        bomb.speed_y *= -1
+
+    # 黒側safezone底辺
+    if 555 <= bomb.x <= 744 and 340 <= bomb.y <= 410 and bomb.speed_y > 0:
+        bomb.speed_y *= -1
+
+    # 赤側safezone右辺
+    if 174 <= bomb.x <= 204 and 150 <= bomb.y <= 390 and bomb.speed_x > 0:
+        bomb.speed_x *= -1
+
+    # 黒側safezone左辺
+    if 537 <= bomb.x <= 563 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
+        bomb.speed_x *= -1
+
 # ゲームループ
 running = True
 while running:
@@ -156,7 +188,7 @@ while running:
 
     # 新しいボムを生成するタイミングを管理
     current_time = time.time()
-    if current_time - next_bomb_spawn_time > bomb_spawn_interval / 2000:
+    if current_time - next_bomb_spawn_time > bomb_spawn_interval / 1000:
         new_bomb = Bomb()  # 新しいボムのインスタンスを作成
         bombs.append(new_bomb)  # ボムをリストに追加
         next_bomb_spawn_time = current_time
@@ -165,7 +197,10 @@ while running:
     bombs_to_remove = []
     for bomb in bombs:
         bomb_mvdef(bomb)
-        if current_time - bomb.created_time > 1000:  # 20秒経過でボムを消去
+        if safezone_pl(bomb):
+            current_time = 100
+            safezone_af(bomb)
+        if current_time - bomb.created_time > 100:  # 20秒経過でボムを消去
             bombs_to_remove.append(bomb)
     for bomb in bombs_to_remove:
         bombs.remove(bomb)
