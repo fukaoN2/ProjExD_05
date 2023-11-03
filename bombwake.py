@@ -9,7 +9,7 @@ pygame.init()
 # 画面の設定
 screen_width = 800
 screen_height = 600
-fps = 500
+fps = 60
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("ボムへいをわけろ！")
 
@@ -69,14 +69,12 @@ def back():
 # ボムの移動に関する関数
 def bomb_mvdef(bomb):
     # フレームごとの移動距離を計算
-    time_passed = clock.tick(fps)
-    seconds = time_passed / 3000.0  # フレームレートで割って秒に変換
-    mv_x = bomb.speed_x * seconds * fps * 10
-    mv_y = bomb.speed_y * seconds * fps * 10
+    seconds = 1 / time_passed  # フレームレートで割って秒に変換
+    mv_x = bomb.speed_x * seconds * fps
+    mv_y = bomb.speed_y * seconds * fps
 
     # # デバッグ情報の速度情報を表示
     # print(f"Bomb speed: {mv_x}, {mv_y}")
-
 
     bomb.x += mv_x
     bomb.y += mv_y
@@ -147,6 +145,7 @@ def safezone_def():
 # ゲームループ
 running = True
 while running:
+    time_passed = clock.tick(fps)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -170,6 +169,9 @@ while running:
             bombs_to_remove.append(bomb)
     for bomb in bombs_to_remove:
         bombs.remove(bomb)
+
+    clock.tick()
+    print(clock.get_fps())
 
     # 画面更新
     pygame.display.update()
