@@ -21,8 +21,11 @@ background = pygame.image.load("ex05/data/background.png")
 
 # ボムの設定
 bomb_image = pygame.image.load("ex05/data/bom1.png")
+bombred_image = pygame.image.load("ex05/data/bombred1.png")
 bomb_image = pygame.transform.rotozoom(bomb_image, 0, 0.11)
+bombred_image = pygame.transform.rotozoom(bombred_image, 0, 0.11)
 bomb_rect = bomb_image.get_rect()
+bombred_rect = bombred_image.get_rect()
 bomb_spawn_interval = 3000  # ボムの出現間隔(ミリ秒)
 next_bomb_spawn_time = 0
 
@@ -120,7 +123,9 @@ def bomb_mvdef(bomb):
         bomb.speed_x *= -1
 
     # ボムの描画
-    screen.blit(bomb_image, (bomb.x, bomb.y))
+    # screen.blit(bomb_image, (bomb.x, bomb.y))
+    if bomb is not None:
+        screen.blit(bomb.image, (bomb.x, bomb.y))
 
 def safezone_def():
     # # 外枠の描画(実装時に削除・反射を確認するために描画)
@@ -174,6 +179,7 @@ def safezone_af(bomb):
     if 537 <= bomb.x <= 563 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
         bomb.speed_x *= -1
 
+cnt = 0
 # ゲームループ
 running = True
 while running:
@@ -190,8 +196,15 @@ while running:
     current_time = time.time()
     if current_time - next_bomb_spawn_time > bomb_spawn_interval / 1000:
         new_bomb = Bomb()  # 新しいボムのインスタンスを作成
+        new_bomb.image = random.choice([bomb_image, bombred_image])  # ランダムにボムの画像を選択
         bombs.append(new_bomb)  # ボムをリストに追加
         next_bomb_spawn_time = current_time
+        if cnt % 2 == 0:
+            bomb_spawn_interval -= 100
+        if bomb_spawn_interval <= 400:
+            bomb_spawn_interval = 500
+        print(bomb_spawn_interval)
+        cnt += 1
 
     # ボムを移動して描画
     bombs_to_remove = []
@@ -206,7 +219,7 @@ while running:
         bombs.remove(bomb)
 
     clock.tick()
-    print(clock.get_fps())
+    # print(clock.get_fps())
 
     # 画面更新
     pygame.display.update()
