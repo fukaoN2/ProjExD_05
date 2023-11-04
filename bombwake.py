@@ -188,7 +188,7 @@ while running:
 
     # 新しいボムを生成するタイミングを管理
     current_time = time.time()
-    if current_time - next_bomb_spawn_time > bomb_spawn_interval / 100:
+    if current_time - next_bomb_spawn_time > bomb_spawn_interval / 1000:
         new_bomb = Bomb()  # 新しいボムのインスタンスを作成
         bombs.append(new_bomb)  # ボムをリストに追加
         next_bomb_spawn_time = current_time
