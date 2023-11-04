@@ -21,7 +21,7 @@ background = pygame.image.load("ex05/data/background.png")
 
 # ボムの設定
 bomb_image = pygame.image.load("ex05/data/bom1.png")
-bombred_image = pygame.image.load("ex05/data/bombred1.png")
+bombred_image = pygame.image.load("ex05/data/bomred2.png")
 bomb_image = pygame.transform.rotozoom(bomb_image, 0, 0.11)
 bombred_image = pygame.transform.rotozoom(bombred_image, 0, 0.11)
 bomb_rect = bomb_image.get_rect()
