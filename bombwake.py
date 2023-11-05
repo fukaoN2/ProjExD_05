@@ -203,10 +203,8 @@ while running:
         new_bomb.image = random.choice([bomb_image, bombred_image])  # ランダムにボムの画像を選択
         bombs.append(new_bomb)  # ボムをリストに追加
         next_bomb_spawn_time = current_time
-        if cnt % 2 == 0:
+        if cnt % 2 == 0 and bomb_spawn_interval >= 400:
             bomb_spawn_interval -= 100
-        if bomb_spawn_interval <= 400:
-            bomb_spawn_interval = 500
         print(bomb_spawn_interval)
         cnt += 1
 
@@ -215,11 +213,7 @@ while running:
     for bomb in bombs:
         bomb_mvdef(bomb)
         if safezone_pl(bomb):
-            if b1 == 1:
-                if bomb_image:
-                    break
-            if b2 == 1:
-                if bombred_image:
+            if (b1 == 1 and bomb_image) or (b2 == 1 and bombred_image):
                     break
             current_time = 100
             safezone_af(bomb)
@@ -237,4 +231,3 @@ while running:
 
 # Pygameの終了
 pygame.quit()
-
