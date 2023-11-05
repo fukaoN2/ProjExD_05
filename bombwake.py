@@ -147,10 +147,14 @@ def safezone_def():
     screen.blit(black_floor, (604, 204))
     screen.blit(red_floor, (24, -19))
 
+b1 = 0
+b2 = 0
 def safezone_pl(bomb):
     if 24 <= bomb.x <= 174 and 163 <= bomb.y <= 380:
+        b1 = 1
         return
     elif 555 <= bomb.x <= 744 and 163 <= bomb.y <= 380:
+        b2 = 1
         return
 
 def safezone_af(bomb):
@@ -211,6 +215,12 @@ while running:
     for bomb in bombs:
         bomb_mvdef(bomb)
         if safezone_pl(bomb):
+            if b1 == 1:
+                if bomb_image:
+                    break
+            if b2 == 1:
+                if bombred_image:
+                    break
             current_time = 100
             safezone_af(bomb)
         if current_time - bomb.created_time > 100:  # 20秒経過でボムを消去
@@ -227,3 +237,4 @@ while running:
 
 # Pygameの終了
 pygame.quit()
+
