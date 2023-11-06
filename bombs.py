@@ -45,6 +45,13 @@ class Bomb:
         self.created_time = time.time()
         self.image = random.choice([bomb_image, bombred_image])  # ランダムにボムの画像を選択
         self.rect = self.image.get_rect()
+        self.rect.topleft = (self.x, self.y)
+        self.dragging = False
+    
+    def start_drag(self):
+        self.dragging = True
+
+    def end_drag(self):
         self.dragging = False
 
     def set_random_speed(self):
@@ -214,12 +221,13 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
             for bomb in bombs:
-                if bomb.rect.collidepoint(event.pos):
-                    bomb.dragging = True
+                if ((bomb.x -50) <= event.pos[0] <= (bomb.x + 50)) and ((bomb.y - 50) <= event.pos[1] <= (bomb.y + 54)):
+                    bomb.start_drag()
+
 
         elif event.type == pygame.MOUSEBUTTONUP:
             for bomb in bombs:
-                bomb.dragging = False
+                bomb.end_drag()
 
     # ボムを移動して描画
     bombs_to_remove = []
@@ -248,7 +256,7 @@ while running:
     # print(clock.get_fps())
 
     # 画面更新
-    print(bomb.dragging)
+    #print(bomb.dragging)
     pygame.display.update()
     clock.tick(fps)
 
