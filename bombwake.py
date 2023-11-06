@@ -28,6 +28,10 @@ bomb_rect = bomb_image.get_rect()
 bombred_rect = bombred_image.get_rect()
 bomb_spawn_interval = 3000  # ボムの出現間隔(ミリ秒)
 next_bomb_spawn_time = 0
+b1 = 0
+b2 = 0
+c1 = 0
+c2 = 0
 
 #格子の追加
 black_floor = pygame.image.load("ex05/data/black.png")
@@ -147,14 +151,12 @@ def safezone_def():
     screen.blit(black_floor, (604, 204))
     screen.blit(red_floor, (24, -19))
 
-b1 = 0
-b2 = 0
 def safezone_pl(bomb):
     if 24 <= bomb.x <= 174 and 163 <= bomb.y <= 380:
-        b1 = 1
+        c1 = 1
         return
     elif 555 <= bomb.x <= 744 and 163 <= bomb.y <= 380:
-        b2 = 1
+        c2 = 1
         return
 
 def safezone_af(bomb):
@@ -201,6 +203,10 @@ while running:
     if current_time - next_bomb_spawn_time > bomb_spawn_interval / 1000:
         new_bomb = Bomb()  # 新しいボムのインスタンスを作成
         new_bomb.image = random.choice([bomb_image, bombred_image])  # ランダムにボムの画像を選択
+        if new_bomb == bomb_image:
+            b1 = 1
+        elif new_bomb == bombred_image:
+            b2 = 1
         bombs.append(new_bomb)  # ボムをリストに追加
         next_bomb_spawn_time = current_time
         if cnt % 2 == 0 and bomb_spawn_interval >= 400:
@@ -213,7 +219,7 @@ while running:
     for bomb in bombs:
         bomb_mvdef(bomb)
         if safezone_pl(bomb):
-            if (b1 == 1 and bomb_image) or (b2 == 1 and bombred_image):
+            if (b1 == 1 and c1 == 1) or (b2 == 1 and c2 == 1):
                     break
             current_time = 100
             safezone_af(bomb)
