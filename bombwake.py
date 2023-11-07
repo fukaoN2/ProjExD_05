@@ -7,8 +7,8 @@ import time
 pygame.init()
 
 # 画面の設定
-screen_width = 800
-screen_height = 600
+screen_width = 768
+screen_height = 575
 fps = 60
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("ボムへいをわけろ！")
@@ -33,10 +33,14 @@ b2 = 0
 c1 = 0
 c2 = 0
 
+# 爆発gif
+gif = pygame.image.load("ex05/data/explosion.gif")
+
 #格子の追加
 black_floor = pygame.image.load("ex05/data/black.png")
 red_floor = pygame.image.load("ex05/data/red.png")
 yellow_floor = pygame.image.load("ex05/data/yellow_lines.jpg")
+
 
 # ボムクラスを定義
 class Bomb:
@@ -76,10 +80,19 @@ def back():
 # ボムの移動に関する関数
 def bomb_mvdef(bomb):
     # フレームごとの移動距離を計算
+    elapsed_time = time.time() - bomb.created_time
     seconds = 1 / time_passed  # フレームレートで割って秒に変換
     mv_x = bomb.speed_x * seconds * fps
     mv_y = bomb.speed_y * seconds * fps
 
+    
+    if not(24 <= bomb.x <= 194 and 133 <= bomb.y <= 410) or(555 <= bomb.x <= 744 and 133 <= bomb.y <= 410):
+        # ボムがセーフゾーン外にいる場合
+        if elapsed_time > 37:
+            # 37秒以上経過したらボムを停止
+            mv_x = 0
+            mv_y = 0
+            
     # # デバッグ情報の速度情報を表示
     # print(f"Bomb speed: {mv_x}, {mv_y}")
 
@@ -127,8 +140,13 @@ def bomb_mvdef(bomb):
         bomb.speed_x *= -1
 
     # ボムの描画
-    # screen.blit(bomb_image, (bomb.x, bomb.y))
-    if bomb is not None:
+    if elapsed_time > 40:
+        # 描画位置をボムの中心に調整
+        gif_rect = gif.get_rect()
+        gif_x = bomb.x + (bomb_rect.width - gif_rect.width) / 2
+        gif_y = bomb.y + (bomb_rect.height - gif_rect.height) / 2
+        screen.blit(gif, (gif_x, gif_y))
+    else:
         screen.blit(bomb.image, (bomb.x, bomb.y))
 
 def safezone_def():
@@ -188,12 +206,13 @@ def safezone_af(bomb):
 cnt = 0
 # ゲームループ
 running = True
+explosion_time = None  # 爆発が発生した時間
+
 while running:
     time_passed = clock.tick(fps)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
     back()
 
     safezone_def()
@@ -223,10 +242,13 @@ while running:
                     break
             current_time = 100
             safezone_af(bomb)
-        if current_time - bomb.created_time > 100:  # 20秒経過でボムを消去
-            bombs_to_remove.append(bomb)
+        if current_time - bomb.created_time > 40 and explosion_time is None:
+            explosion_time = current_time  # 爆発時間を記録
     for bomb in bombs_to_remove:
         bombs.remove(bomb)
+        
+    if explosion_time is not None and current_time - explosion_time > 1:
+        running = False  # 爆発後1秒間でゲームを終了
 
     clock.tick()
     # print(clock.get_fps())
