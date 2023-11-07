@@ -19,7 +19,6 @@ clock = pygame.time.Clock()
 # 背景画像の読み込み
 background = pygame.image.load("ex05/data/background.png")
 
-senni = pygame.image.load("ex05/data/koka.png")
 
 # ボムの設定
 bomb_image = pygame.image.load("ex05/data/bom1.png")
@@ -198,7 +197,7 @@ class Score:
     """
     def __init__(self):
         self.font = pygame.font.Font(None, 50)
-        self.color = (0, 0, 255)
+        self.color = (255, 0, 0)
         self.score = 0
         self.image = self.font.render(f"Score: {self.score}", 0, self.color)
         self.rect = self.image.get_rect()
@@ -212,10 +211,11 @@ class Score:
         screen.blit(self.image, self.rect)
 
 cnt = 0
+score = Score()
+
 # ゲームループ
 running = True
 while running:
-    score = Score()
     time_passed = clock.tick(fps)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -235,19 +235,26 @@ while running:
         elif new_bomb == bombred_image:
             b2 = 1
         bombs.append(new_bomb)  # ボムをリストに追加
-        safe_red.append(new_bomb)
+
+        safe_red.append(new_bomb) #実験 赤のセーフゾーンにボム兵が入ったことになっている
         print(len(safe_red))
+
         next_bomb_spawn_time = current_time
         if cnt % 2 == 0 and bomb_spawn_interval >= 400:
             bomb_spawn_interval -= 100
         print(bomb_spawn_interval)
         cnt += 1
-    
-    #safezone内のボム兵リストが40なるとscoreが40プラスされる(仮)
-    if len(safe_red) % 40 <= 0:
-        score.score += 40
-        safe_red.clear()
-    
+
+        #safezone内のボム兵リストが40なるとscoreが40プラスされる
+        if len(safe_red) == 4:
+            score.score_up()
+            bombs.clear()
+            safe_red.clear()
+        if len(safe_brack) == 40:
+            score.score_up()
+            bombs.clear()
+            safe_brack.clear()
+
     # ボムを移動して描画
     bombs_to_remove = []
     for bomb in bombs:
@@ -261,7 +268,7 @@ while running:
             bombs_to_remove.append(bomb)
     for bomb in bombs_to_remove:
         bombs.remove(bomb)
-    
+
     score.update(screen)
 
     clock.tick()
