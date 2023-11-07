@@ -47,12 +47,7 @@ class Bomb:
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
         self.dragging = False
-    
-    def start_drag(self):
-        self.dragging = True
 
-    def end_drag(self):
-        self.dragging = False
 
     def set_random_speed(self):
         # ランダムな速度を設定
@@ -135,7 +130,12 @@ def bomb_mvdef(bomb):
     # ボムの描画
     # screen.blit(bomb_image, (bomb.x, bomb.y))
     if bomb is not None:
-        screen.blit(bomb.image, (bomb.x, bomb.y))
+        if bomb.dragging:
+            screen.blit(bomb.image, pygame.mouse.get_pos())
+            print(f'True : {bomb.x} : {bomb.y} : {pygame.mouse.get_pos()}')
+        else:
+            screen.blit(bomb.image, (bomb.x, bomb.y))
+            print(f'False : {bomb.x} : {bomb.y}')
 
 def safezone_def():
     # # 外枠の描画(実装時に削除・反射を確認するために描画)
@@ -189,18 +189,11 @@ def safezone_af(bomb):
     if 537 <= bomb.x <= 563 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
         bomb.speed_x *= -1
 
-def moving_mouse(bomb):
-    bomb.x, bomb.y = pygame.mouse.get_pos()
-    screen.blit(bomb.image, (bomb.x, bomb.y))
-
 cnt = 0
 # ゲームループ
 running = True
 while running:
     time_passed = clock.tick(fps)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
 
     back()
     safezone_def()
@@ -219,24 +212,24 @@ while running:
         cnt += 1
 
     for event in pygame.event.get():
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            for bomb in bombs:
-                if ((bomb.x -50) <= event.pos[0] <= (bomb.x + 50)) and ((bomb.y - 50) <= event.pos[1] <= (bomb.y + 54)):
-                    bomb.start_drag()
+        if event.type == pygame.QUIT:
+            running = False
 
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            for bomb in bombs:
+                #if ((bomb.x -50) <= bomb.rect.move_ip[0] <= (bomb.x + 50)) and ((bomb.y - 50) <= bomb.rect.move_ip[1] <= (bomb.y + 54)):
+                if bomb.rect.collidepoint(event.pos):
+                    bomb.dragging = True
 
         elif event.type == pygame.MOUSEBUTTONUP:
             for bomb in bombs:
-                bomb.end_drag()
+                bomb.dragging = False
+
 
     # ボムを移動して描画
     bombs_to_remove = []
     for bomb in bombs:
-        if bomb.dragging:
-            moving_mouse(bomb)
-        else:
-            bomb_mvdef(bomb)
-
+        bomb_mvdef(bomb)
         if safezone_pl(bomb):
             if bomb.dragging:
                 pass
