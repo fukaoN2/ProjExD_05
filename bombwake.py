@@ -4,7 +4,6 @@ import math
 import time
 import sys
 
-
 # Pygameの初期化
 pygame.init()
 
@@ -21,6 +20,7 @@ clock = pygame.time.Clock()
 # 背景画像の読み込み
 background = pygame.image.load("ex05/data/background.png")
 
+
 # ボムの設定
 bomb_image = pygame.image.load("ex05/data/bom1.png")
 bombred_image = pygame.image.load("ex05/data/bomred2.png")
@@ -30,6 +30,7 @@ bomb_rect = bomb_image.get_rect()
 bombred_rect = bombred_image.get_rect()
 bomb_spawn_interval = 3000  # ボムの出現間隔(ミリ秒)
 next_bomb_spawn_time = 0
+
 b1 = 0
 b2 = 0
 c1 = 0
@@ -72,6 +73,8 @@ class Bomb:
 
 # ボムのリスト
 bombs = []
+safe_red = []
+safe_black = []
 
 def back():
     """
@@ -214,7 +217,27 @@ def safezone_af(bomb):
     if 537 <= bomb.x <= 563 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
         bomb.speed_x *= -1
 
+class Score:
+    """
+    scoreを描写するためのクラス
+    """
+    def __init__(self):
+        self.font = pygame.font.Font(None, 50)
+        self.color = (255, 0, 0)
+        self.score = 0
+        self.image = self.font.render(f"Score: {self.score}", 0, self.color)
+        self.rect = self.image.get_rect()
+        self.rect.center = 100, screen_height-50
+
+    def score_up(self):
+        self.score += 40
+
+    def update(self, screen: pygame.Surface):
+        self.image = self.font.render(f"Score: {self.score}", 0, self.color)
+        screen.blit(self.image, self.rect)
+
 cnt = 0
+score = Score()
 # ゲームループ
 running = True
 explosion_time = None  # 爆発が発生した時間
@@ -238,11 +261,18 @@ while running:
         if cnt % 2 == 0 and bomb_spawn_interval >= 400:
             bomb_spawn_interval -= 100
         print(bomb_spawn_interval)
-
+        #safezone内のボム兵リストが40なるとscoreが40プラスされる
+        if len(safe_red) == 40:
+            score.score_up()
+            bombs.clear()
+            safe_red.clear()
+        if len(safe_black) == 40:
+            score.score_up()
+            bombs.clear()
+            safe_black.clear()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
         elif event.type == pygame.MOUSEBUTTONDOWN:
             for bomb in bombs:
                 bomb_xval = bomb.x - int(pygame.mouse.get_pos()[0]) 
@@ -261,7 +291,7 @@ while running:
                 bomb.dragging = False
                 if (b1 == 1 and c1 == 1) or (b2 == 1 and c2 == 1):
                         break
-
+    
     # ボムを移動して描画
     bombs_to_remove = []
     for bomb in bombs:
@@ -278,12 +308,13 @@ while running:
                 for bomb in bombs_to_remove:
                     bombs.remove(bomb)
 
-        
+
     if explosion_time is not None and current_time - explosion_time > 1:
         running = False  # 爆発後1秒間でゲームを終了
 
     clock.tick()
     # print(clock.get_fps())
+    score.update(screen)
 
     # 画面更新
     #print(bomb.dragging)
@@ -292,4 +323,3 @@ while running:
 
 # Pygameの終了
 pygame.quit()
-
