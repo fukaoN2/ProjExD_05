@@ -45,7 +45,6 @@ class Bomb:
         self.created_time = time.time()
         self.image = random.choice([bomb_image, bombred_image])  # ランダムにボムの画像を選択
         self.rect = self.image.get_rect()
-        self.rect.topleft = (self.x, self.y)
         self.dragging = False
 
 
@@ -82,10 +81,11 @@ def bomb_mvdef(bomb):
     mv_y = bomb.speed_y * seconds * fps
 
     # # デバッグ情報の速度情報を表示
-    # print(f"Bomb speed: {mv_x}, {mv_y}")
+    #print(f"Bomb speed: {mv_x}, {mv_y}")
 
     bomb.x += mv_x
     bomb.y += mv_y
+
 
     # ボムの位置更新前に壁との衝突をチェック
     new_bomb_x = bomb.x + mv_x
@@ -131,8 +131,9 @@ def bomb_mvdef(bomb):
     # screen.blit(bomb_image, (bomb.x, bomb.y))
     if bomb is not None:
         if bomb.dragging:
-            screen.blit(bomb.image, pygame.mouse.get_pos())
-            print(f'True : {bomb.x} : {bomb.y} : {pygame.mouse.get_pos()}')
+            bomb.x, bomb.y = pygame.mouse.get_pos()
+            screen.blit(bomb.image, (bomb.x, bomb.y))
+            print(f'True : {bomb.x} : {bomb.y}')
         else:
             screen.blit(bomb.image, (bomb.x, bomb.y))
             print(f'False : {bomb.x} : {bomb.y}')
