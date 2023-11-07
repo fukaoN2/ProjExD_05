@@ -30,11 +30,13 @@ bomb_rect = bomb_image.get_rect()
 bombred_rect = bombred_image.get_rect()
 bomb_spawn_interval = 3000  # ボムの出現間隔(ミリ秒)
 next_bomb_spawn_time = 0
+b1 = 0
+b2 = 0
+c1 = 0
+c2 = 0
 
-#格子の追加
-black_floor = pygame.image.load("ex05/data/black.png")
-red_floor = pygame.image.load("ex05/data/red.png")
-yellow_floor = pygame.image.load("ex05/data/yellow_lines.jpg")
+# 爆発gif
+gif = pygame.image.load("ex05/data/explosion.gif")
 
 #格子の追加
 black_floor = pygame.image.load("ex05/data/black.png")
@@ -50,10 +52,7 @@ class Bomb:
         self.speed_y = 0  # 初期速度をゼロに設定
         self.set_random_speed()
         self.created_time = time.time()
-        self.image = random.choice([bomb_image, bombred_image])  # ランダムにボムの画像を選択
-        self.rect = self.image.get_rect()
         self.dragging = False
-
 
 
     def set_random_speed(self):
@@ -84,6 +83,7 @@ def back():
 # ボムの移動に関する関数
 def bomb_mvdef(bomb):
     # フレームごとの移動距離を計算
+    elapsed_time = time.time() - bomb.created_time
     seconds = 1 / time_passed  # フレームレートで割って秒に変換
     mv_x = bomb.speed_x * seconds * fps
     mv_y = bomb.speed_y * seconds * fps
@@ -182,8 +182,10 @@ def safezone_def():
 
 def safezone_pl(bomb):
     if 24 <= bomb.x <= 174 and 163 <= bomb.y <= 380:
+        c1 = 1
         return
     elif 555 <= bomb.x <= 744 and 163 <= bomb.y <= 380:
+        c2 = 1
         return
 
 def safezone_af(bomb):
@@ -226,14 +228,16 @@ while running:
     current_time = time.time()
     if current_time - next_bomb_spawn_time > bomb_spawn_interval / 1000:
         new_bomb = Bomb()  # 新しいボムのインスタンスを作成
+        new_bomb.image = random.choice([bomb_image, bombred_image])  # ランダムにボムの画像を選択
+        if new_bomb == bomb_image:
+            b1 = 1
+        elif new_bomb == bombred_image:
+            b2 = 1
         bombs.append(new_bomb)  # ボムをリストに追加
         next_bomb_spawn_time = current_time
-        if cnt % 2 == 0:
+        if cnt % 2 == 0 and bomb_spawn_interval >= 400:
             bomb_spawn_interval -= 100
-        if bomb_spawn_interval <= 400:
-            bomb_spawn_interval = 500
-        #print(bomb_spawn_interval)
-        cnt += 1
+        print(bomb_spawn_interval)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -250,20 +254,19 @@ while running:
                 if bomb_xval <= 50 and bomb_yval <= 50:
                 #if bomb.rect.collidepoint(event.pos):
                     bomb.dragging = True
-            pygame.draw.rect(background, (0, 0, 255), (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], 10, 10))
+            # pygame.draw.rect(background, (0, 0, 255), (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], 10, 10))
 
         elif event.type == pygame.MOUSEBUTTONUP:
             for bomb in bombs:
                 bomb.dragging = False
+                if (b1 == 1 and c1 == 1) or (b2 == 1 and c2 == 1):
+                        break
 
     # ボムを移動して描画
     bombs_to_remove = []
     for bomb in bombs:
         bomb_mvdef(bomb)
         if safezone_pl(bomb):
-            if bomb.dragging == False:
-                if (b1 == 1 and c1 == 1) or (b2 == 1 and c2 == 1):
-                        break
             current_time = 100
             safezone_af(bomb)
         if current_time - bomb.created_time > 40 and explosion_time is None:
