@@ -235,10 +235,6 @@ while running:
         elif new_bomb == bombred_image:
             b2 = 1
         bombs.append(new_bomb)  # ボムをリストに追加
-
-        safe_red.append(new_bomb) #実験 赤のセーフゾーンにボム兵が入ったことになっている
-        print(len(safe_red))
-
         next_bomb_spawn_time = current_time
         if cnt % 2 == 0 and bomb_spawn_interval >= 400:
             bomb_spawn_interval -= 100
@@ -246,7 +242,7 @@ while running:
         cnt += 1
 
         #safezone内のボム兵リストが40なるとscoreが40プラスされる
-        if len(safe_red) == 4:
+        if len(safe_red) == 40:
             score.score_up()
             bombs.clear()
             safe_red.clear()
