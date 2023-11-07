@@ -30,13 +30,6 @@ bomb_rect = bomb_image.get_rect()
 bombred_rect = bombred_image.get_rect()
 bomb_spawn_interval = 3000  # ボムの出現間隔(ミリ秒)
 next_bomb_spawn_time = 0
-b1 = 0
-b2 = 0
-c1 = 0
-c2 = 0
-
-# 爆発gif
-gif = pygame.image.load("ex05/data/explosion.gif")
 
 #格子の追加
 black_floor = pygame.image.load("ex05/data/black.png")
@@ -91,7 +84,6 @@ def back():
 # ボムの移動に関する関数
 def bomb_mvdef(bomb):
     # フレームごとの移動距離を計算
-    elapsed_time = time.time() - bomb.created_time
     seconds = 1 / time_passed  # フレームレートで割って秒に変換
     mv_x = bomb.speed_x * seconds * fps
     mv_y = bomb.speed_y * seconds * fps
@@ -104,10 +96,11 @@ def bomb_mvdef(bomb):
             mv_y = 0
 
     # # デバッグ情報の速度情報を表示
-    # print(f"Bomb speed: {mv_x}, {mv_y}")
+    #print(f"Bomb speed: {mv_x}, {mv_y}")
 
     bomb.x += mv_x
     bomb.y += mv_y
+
 
     # ボムの位置更新前に壁との衝突をチェック
     new_bomb_x = bomb.x + mv_x
@@ -189,10 +182,8 @@ def safezone_def():
 
 def safezone_pl(bomb):
     if 24 <= bomb.x <= 174 and 163 <= bomb.y <= 380:
-        c1 = 1
         return
     elif 555 <= bomb.x <= 744 and 163 <= bomb.y <= 380:
-        c2 = 1
         return
 
 def safezone_af(bomb):
@@ -235,16 +226,13 @@ while running:
     current_time = time.time()
     if current_time - next_bomb_spawn_time > bomb_spawn_interval / 1000:
         new_bomb = Bomb()  # 新しいボムのインスタンスを作成
-        new_bomb.image = random.choice([bomb_image, bombred_image])  # ランダムにボムの画像を選択
-        if new_bomb == bomb_image:
-            b1 = 1
-        elif new_bomb == bombred_image:
-            b2 = 1
         bombs.append(new_bomb)  # ボムをリストに追加
         next_bomb_spawn_time = current_time
-        if cnt % 2 == 0 and bomb_spawn_interval >= 400:
+        if cnt % 2 == 0:
             bomb_spawn_interval -= 100
-        print(bomb_spawn_interval)
+        if bomb_spawn_interval <= 400:
+            bomb_spawn_interval = 500
+        #print(bomb_spawn_interval)
         cnt += 1
 
     for event in pygame.event.get():
