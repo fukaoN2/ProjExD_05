@@ -92,7 +92,7 @@ def bomb_mvdef(bomb):
             # 37秒以上経過したらボムを停止
             mv_x = 0
             mv_y = 0
-            
+
     # # デバッグ情報の速度情報を表示
     # print(f"Bomb speed: {mv_x}, {mv_y}")
 
@@ -259,3 +259,5 @@ while running:
 
 # Pygameの終了
 pygame.quit()
+
+# 更新用
