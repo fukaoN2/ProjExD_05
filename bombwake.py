@@ -275,11 +275,10 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             for bomb in bombs:
-                bomb_xval = bomb.x - int(pygame.mouse.get_pos()[0]) 
-                bomb_yval = bomb.y - int(pygame.mouse.get_pos()[1]) 
+                bomb_xval = bomb.x - int(pygame.mouse.get_pos()[0])
+                bomb_yval = bomb.y - int(pygame.mouse.get_pos()[1])
                 bomb_xval = abs(bomb_xval)
                 bomb_yval = abs(bomb_yval)
-                
                 print(f"{bomb_xval},{bomb_yval}")
                 if bomb_xval <= 50 and bomb_yval <= 50:
                 #if bomb.rect.collidepoint(event.pos):
@@ -291,7 +290,7 @@ while running:
                 bomb.dragging = False
                 if (b1 == 1 and c1 == 1) or (b2 == 1 and c2 == 1):
                         break
-    
+
     # ボムを移動して描画
     bombs_to_remove = []
     for bomb in bombs:
