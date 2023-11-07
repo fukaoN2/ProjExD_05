@@ -2,13 +2,15 @@ import pygame
 import random
 import math
 import time
+import sys
+
 
 # Pygameの初期化
 pygame.init()
 
 # 画面の設定
-screen_width = 768
-screen_height = 575
+screen_width = 800
+screen_height = 600
 fps = 60
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("ボムへいをわけろ！")
@@ -41,7 +43,6 @@ black_floor = pygame.image.load("ex05/data/black.png")
 red_floor = pygame.image.load("ex05/data/red.png")
 yellow_floor = pygame.image.load("ex05/data/yellow_lines.jpg")
 
-
 # ボムクラスを定義
 class Bomb:
     def __init__(self):
@@ -51,6 +52,8 @@ class Bomb:
         self.speed_y = 0  # 初期速度をゼロに設定
         self.set_random_speed()
         self.created_time = time.time()
+        self.dragging = False
+
 
     def set_random_speed(self):
         # ランダムな速度を設定
@@ -85,7 +88,6 @@ def bomb_mvdef(bomb):
     mv_x = bomb.speed_x * seconds * fps
     mv_y = bomb.speed_y * seconds * fps
 
-    
     if not(24 <= bomb.x <= 194 and 133 <= bomb.y <= 410) or(555 <= bomb.x <= 744 and 133 <= bomb.y <= 410):
         # ボムがセーフゾーン外にいる場合
         if elapsed_time > 37:
@@ -94,10 +96,11 @@ def bomb_mvdef(bomb):
             mv_y = 0
 
     # # デバッグ情報の速度情報を表示
-    # print(f"Bomb speed: {mv_x}, {mv_y}")
+    #print(f"Bomb speed: {mv_x}, {mv_y}")
 
     bomb.x += mv_x
     bomb.y += mv_y
+
 
     # ボムの位置更新前に壁との衝突をチェック
     new_bomb_x = bomb.x + mv_x
@@ -147,7 +150,15 @@ def bomb_mvdef(bomb):
         gif_y = bomb.y + (bomb_rect.height - gif_rect.height) / 2
         screen.blit(gif, (gif_x, gif_y))
     else:
-        screen.blit(bomb.image, (bomb.x, bomb.y))
+        # screen.blit(bomb_image, (bomb.x, bomb.y))
+        if bomb is not None:
+            if bomb.dragging:
+                bomb.x, bomb.y = pygame.mouse.get_pos()
+                screen.blit(bomb.image, (bomb.x, bomb.y))
+                #print(f'True : {bomb.x} : {bomb.y}')
+            else:
+                screen.blit(bomb.image, (bomb.x, bomb.y))
+                #print(f'False : {bomb.x} : {bomb.y}')
 
 def safezone_def():
     # # 外枠の描画(実装時に削除・反射を確認するために描画)
@@ -207,14 +218,10 @@ cnt = 0
 # ゲームループ
 running = True
 explosion_time = None  # 爆発が発生した時間
-
 while running:
     time_passed = clock.tick(fps)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-    back()
 
+    back()
     safezone_def()
 
     # 新しいボムを生成するタイミングを管理
@@ -231,21 +238,46 @@ while running:
         if cnt % 2 == 0 and bomb_spawn_interval >= 400:
             bomb_spawn_interval -= 100
         print(bomb_spawn_interval)
-        cnt += 1
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            for bomb in bombs:
+                bomb_xval = bomb.x - int(pygame.mouse.get_pos()[0]) 
+                bomb_yval = bomb.y - int(pygame.mouse.get_pos()[1]) 
+                bomb_xval = abs(bomb_xval)
+                bomb_yval = abs(bomb_yval)
+                
+                print(f"{bomb_xval},{bomb_yval}")
+                if bomb_xval <= 50 and bomb_yval <= 50:
+                #if bomb.rect.collidepoint(event.pos):
+                    bomb.dragging = True
+            # pygame.draw.rect(background, (0, 0, 255), (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], 10, 10))
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            for bomb in bombs:
+                bomb.dragging = False
+                if (b1 == 1 and c1 == 1) or (b2 == 1 and c2 == 1):
+                        break
 
     # ボムを移動して描画
     bombs_to_remove = []
     for bomb in bombs:
         bomb_mvdef(bomb)
         if safezone_pl(bomb):
-            if (b1 == 1 and c1 == 1) or (b2 == 1 and c2 == 1):
-                    break
             current_time = 100
             safezone_af(bomb)
         if current_time - bomb.created_time > 40 and explosion_time is None:
             explosion_time = current_time  # 爆発時間を記録
-    for bomb in bombs_to_remove:
-        bombs.remove(bomb)
+            if bomb.dragging:
+                pass
+            else:
+                bombs_to_remove.append(bomb)
+                for bomb in bombs_to_remove:
+                    bombs.remove(bomb)
+
         
     if explosion_time is not None and current_time - explosion_time > 1:
         running = False  # 爆発後1秒間でゲームを終了
@@ -254,10 +286,10 @@ while running:
     # print(clock.get_fps())
 
     # 画面更新
+    #print(bomb.dragging)
     pygame.display.update()
     clock.tick(fps)
 
 # Pygameの終了
 pygame.quit()
 
-# 更新用
