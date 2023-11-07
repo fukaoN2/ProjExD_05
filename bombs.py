@@ -2,6 +2,7 @@ import pygame
 import random
 import math
 import time
+import sys
 
 # Pygameの初期化
 pygame.init()
@@ -133,10 +134,10 @@ def bomb_mvdef(bomb):
         if bomb.dragging:
             bomb.x, bomb.y = pygame.mouse.get_pos()
             screen.blit(bomb.image, (bomb.x, bomb.y))
-            print(f'True : {bomb.x} : {bomb.y}')
+            #print(f'True : {bomb.x} : {bomb.y}')
         else:
             screen.blit(bomb.image, (bomb.x, bomb.y))
-            print(f'False : {bomb.x} : {bomb.y}')
+            #print(f'False : {bomb.x} : {bomb.y}')
 
 def safezone_def():
     # # 外枠の描画(実装時に削除・反射を確認するために描画)
@@ -218,9 +219,16 @@ while running:
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             for bomb in bombs:
-                #if ((bomb.x -50) <= bomb.rect.move_ip[0] <= (bomb.x + 50)) and ((bomb.y - 50) <= bomb.rect.move_ip[1] <= (bomb.y + 54)):
-                if bomb.rect.collidepoint(event.pos):
+                bomb_xval = bomb.x - int(pygame.mouse.get_pos()[0]) 
+                bomb_yval = bomb.y - int(pygame.mouse.get_pos()[1]) 
+                bomb_xval = abs(bomb_xval)
+                bomb_yval = abs(bomb_yval)
+                
+                print(f"{bomb_xval},{bomb_yval}")
+                if bomb_xval <= 50 and bomb_yval <= 50:
+                #if bomb.rect.collidepoint(event.pos):
                     bomb.dragging = True
+            pygame.draw.rect(background, (0, 0, 255), (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], 10, 10))
 
         elif event.type == pygame.MOUSEBUTTONUP:
             for bomb in bombs:
