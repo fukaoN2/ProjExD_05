@@ -44,33 +44,6 @@ black_floor = pygame.image.load("ex05/data/black.png")
 red_floor = pygame.image.load("ex05/data/red.png")
 yellow_floor = pygame.image.load("ex05/data/yellow_lines.jpg")
 
-# ボムクラスを定義
-class Bomb:
-    def __init__(self):
-        self.x = screen_width // 2 - bomb_rect.width // 2
-        self.y = 0
-        self.speed_x = 0  # 初期速度をゼロに設定
-        self.speed_y = 0  # 初期速度をゼロに設定
-        self.set_random_speed()
-        self.created_time = time.time()
-        self.dragging = False
-
-
-    def set_random_speed(self):
-        # ランダムな速度を設定
-        self.speed_x = random.randint(-1, 1)
-        while self.speed_x == 0:
-            self.speed_x = random.randint(-1, 1)
-
-        self.speed_y = random.random()
-        while self.speed_y == 0:
-            self.speed_y = random.random()
-
-        d = round(1 / (self.speed_x ** 2 + self.speed_y ** 2), 1)
-        a = math.sqrt(abs(d))
-        self.speed_x *= a
-        self.speed_y *= a
-
 # ボムのリスト
 bombs = []
 safe_red = []
@@ -86,14 +59,13 @@ def back():
 # ボムの移動に関する関数
 def bomb_mvdef(bomb):
     # フレームごとの移動距離を計算
-    elapsed_time = time.time() - bomb.created_time
     seconds = 1 / time_passed  # フレームレートで割って秒に変換
     mv_x = bomb.speed_x * seconds * fps
     mv_y = bomb.speed_y * seconds * fps
 
     if not(24 <= bomb.x <= 194 and 133 <= bomb.y <= 410) or(555 <= bomb.x <= 744 and 133 <= bomb.y <= 410):
         # ボムがセーフゾーン外にいる場合
-        if elapsed_time > 37:
+        if current_time - bomb.created_time > 37:
             # 37秒以上経過したらボムを停止
             mv_x = 0
             mv_y = 0
@@ -126,32 +98,25 @@ def bomb_mvdef(bomb):
         bomb.speed_y *= -1
 
     # 黒側safezone上辺
-    if 555 <= bomb.x <= 744 and 133 <= bomb.y <= 190 and bomb.speed_y > 0:
+    elif 555 <= bomb.x <= 744 and 133 <= bomb.y <= 190 and bomb.speed_y > 0:
         bomb.speed_y *= -1
 
     # 赤側safezone底辺
-    if 24 <= bomb.x <= 194 and 390 <= bomb.y <= 410 and bomb.speed_y < 0:
+    elif 24 <= bomb.x <= 194 and 390 <= bomb.y <= 410 and bomb.speed_y < 0:
         bomb.speed_y *= -1
 
     # 黒側safezone底辺
-    if 555 <= bomb.x <= 744 and 390 <= bomb.y <= 410 and bomb.speed_y < 0:
+    elif 555 <= bomb.x <= 744 and 390 <= bomb.y <= 410 and bomb.speed_y < 0:
         bomb.speed_y *= -1
 
     # 赤側safezone右辺
-    if 174 <= bomb.x <= 204 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
+    elif 148 <= bomb.x <= 174 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
         bomb.speed_x *= -1
 
     # 黒側safezone左辺
-    if 537 <= bomb.x <= 563 and 150 <= bomb.y <= 390 and bomb.speed_x > 0:
+    elif 537 <= bomb.x <= 563 and 150 <= bomb.y <= 390 and bomb.speed_x > 0:
         bomb.speed_x *= -1
 
-    # ボムの描画
-    if elapsed_time > 40:
-        # 描画位置をボムの中心に調整
-        gif_rect = gif.get_rect()
-        gif_x = bomb.x + (bomb_rect.width - gif_rect.width) / 2
-        gif_y = bomb.y + (bomb_rect.height - gif_rect.height) / 2
-        screen.blit(gif, (gif_x, gif_y))
     else:
         # screen.blit(bomb_image, (bomb.x, bomb.y))
         if bomb is not None:
@@ -185,37 +150,78 @@ def safezone_def():
 
 def safezone_pl(bomb):
     if 24 <= bomb.x <= 174 and 163 <= bomb.y <= 380:
-        c1 = 1
-        return
+        return True
     elif 555 <= bomb.x <= 744 and 163 <= bomb.y <= 380:
-        c2 = 1
-        return
+        return True
 
 def safezone_af(bomb):
+    print(f"Condition matched: x={bomb.x}, y={bomb.y}, speed_x={bomb.speed_x}")
     # ボムがsafezoneに接触したとき
     # 赤側safezone上辺
     if 24 <= bomb.x <= 194 and 163 <= bomb.y <= 203 and bomb.speed_y < 0:
         bomb.speed_y *= -1
 
     # 黒側safezone上辺
-    if 555 <= bomb.x <= 744 and 133 <= bomb.y <= 203 and bomb.speed_y < 0:
+    elif 555 <= bomb.x <= 744 and 133 <= bomb.y <= 203 and bomb.speed_y < 0:
         bomb.speed_y *= -1
 
     # 赤側safezone底辺
-    if 24 <= bomb.x <= 194 and 340 <= bomb.y <= 410 and bomb.speed_y > 0:
+    elif 24 <= bomb.x <= 194 and 340 <= bomb.y <= 410 and bomb.speed_y > 0:
         bomb.speed_y *= -1
 
     # 黒側safezone底辺
-    if 555 <= bomb.x <= 744 and 340 <= bomb.y <= 410 and bomb.speed_y > 0:
+    elif 555 <= bomb.x <= 744 and 340 <= bomb.y <= 410 and bomb.speed_y > 0:
         bomb.speed_y *= -1
 
     # 赤側safezone右辺
-    if 174 <= bomb.x <= 204 and 150 <= bomb.y <= 390 and bomb.speed_x > 0:
+    elif 148 <= bomb.x <= 174 and 150 <= bomb.y <= 390 and bomb.speed_x > 0:
         bomb.speed_x *= -1
 
     # 黒側safezone左辺
-    if 537 <= bomb.x <= 563 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
+    elif 537 <= bomb.x <= 563 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
         bomb.speed_x *= -1
+    # bomb.speed_x *= 0
+    # bomb.speed_y *= 0
+        
+def game_over(bomb):
+    bomb.speed_x = 0
+    bomb.speed_y = 0
+    gif_rect = gif.get_rect()
+    gif_x = bomb.x + (bomb_rect.width - gif_rect.width) / 2
+    gif_y = bomb.y + (bomb_rect.height - gif_rect.height) / 2
+    screen.blit(gif, (gif_x, gif_y))
+    pygame.display.update()  # 画面を更新して爆発を表示
+    bombs.remove(bomb)
+    #pygame.time.delay(500)  # 500ミリ秒 (0.5秒) だけプログラムを停止
+    
+    
+# ボムクラスを定義
+class Bomb:
+    def __init__(self):
+        self.x = screen_width // 2 - bomb_rect.width // 2
+        self.y = 0
+        self.speed_x = 0  # 初期速度をゼロに設定
+        self.speed_y = 0  # 初期速度をゼロに設定
+        self.set_random_speed()
+        self.created_time = time.time()
+        self.dragging = False
+        self.image = None
+
+
+    def set_random_speed(self):
+        # ランダムな速度を設定
+        self.speed_x = random.randint(-1, 1)
+        while self.speed_x == 0:
+            self.speed_x = random.randint(-1, 1)
+
+        self.speed_y = random.random()
+        while self.speed_y == 0:
+            self.speed_y = random.random()
+
+        d = round(1 / (self.speed_x ** 2 + self.speed_y ** 2), 1)
+        a = math.sqrt(abs(d))
+        self.speed_x *= a
+        self.speed_y *= a
 
 class Score:
     """
@@ -280,17 +286,28 @@ while running:
                 bomb_xval = abs(bomb_xval)
                 bomb_yval = abs(bomb_yval)
                 
-                print(f"{bomb_xval},{bomb_yval}")
+                #print(f"{bomb_xval},{bomb_yval}")
                 if bomb_xval <= 50 and bomb_yval <= 50:
                 #if bomb.rect.collidepoint(event.pos):
                     bomb.dragging = True
             # pygame.draw.rect(background, (0, 0, 255), (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], 10, 10))
-
         elif event.type == pygame.MOUSEBUTTONUP:
             for bomb in bombs:
                 bomb.dragging = False
-                if (b1 == 1 and c1 == 1) or (b2 == 1 and c2 == 1):
-                        break
+                if 24 <= bomb.x <= 174 and 163 <= bomb.y <= 380:
+                    if bomb.image == bombred_image:
+                        safezone_af(bomb)
+                    elif bomb.image == bomb_image:
+                        explosion_time = current_time
+                        game_over(bomb)
+                        running = False  # ゲーム終了
+                elif 555 <= bomb.x <= 744 and 163 <= bomb.y <= 380:
+                    if bomb.image == bombred_image:
+                        explosion_time = current_time
+                        game_over(bomb)
+                        running = False  # ゲーム終了
+                    elif bomb.image == bomb_image:
+                        safezone_af(bomb)
     
     # ボムを移動して描画
     bombs_to_remove = []
@@ -301,6 +318,7 @@ while running:
             safezone_af(bomb)
         if current_time - bomb.created_time > 40 and explosion_time is None:
             explosion_time = current_time  # 爆発時間を記録
+            game_over(bomb)
             if bomb.dragging:
                 pass
             else:
