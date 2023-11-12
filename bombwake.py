@@ -234,8 +234,8 @@ class Score:
         self.rect = self.image.get_rect()
         self.rect.center = 100, screen_height-50
 
-    def score_up(self):
-        self.score += 5 # スコアを5ずつ更新
+    def score_up(self, bomb_count):
+        self.score += bomb_count # スコアをボムの個数ずつ更新
 
     def update(self, screen: pygame.Surface):
         self.image = self.font.render(f"Score: {self.score}", 0, self.color)
@@ -248,7 +248,6 @@ running = True
 explosion_time = None  # 爆発が発生した時間
 while running:
     time_passed = clock.tick(fps)
-
     back()
     safezone_def()
 
@@ -262,18 +261,18 @@ while running:
         if cnt % 2 == 0 and bomb_spawn_interval >= 400:
             bomb_spawn_interval -= 100
         print(bomb_spawn_interval)
-        # セーフゾーン内のボムを抽出
+        
+    # セーフゾーン内のボムを抽出
     safe_red_bombs = [bomb for bomb in bombs if bomb.in_safezone and bomb.image == bombred_image]
     safe_black_bombs = [bomb for bomb in bombs if bomb.in_safezone and bomb.image == bomb_image]
-
-    # セーフゾーン内のボムが5体に達したらスコアを加算して描画対象から除外
-    if len(safe_red_bombs) == 5:
-        score.score_up()
+    # セーフゾーン内のボムが5体以上に達したらスコアを加算して描画対象から除外
+    if len(safe_red_bombs) >= 5:
+        score.score_up(len(safe_red_bombs))
         bombs = [bomb for bomb in bombs if not (bomb.in_safezone and bomb.image == bombred_image)]
         safe_red = 0
 
-    if len(safe_black_bombs) == 5:
-        score.score_up()
+    if len(safe_black_bombs) >= 5:
+        score.score_up(len(safe_black_bombs))
         bombs = [bomb for bomb in bombs if not (bomb.in_safezone and bomb.image == bomb_image)]
         safe_black = 0
 
@@ -299,12 +298,10 @@ while running:
                         print(f"Red Safezone: {safe_red}")
                         safezone_af(bomb)
                     elif bomb.image == bomb_image and not bomb.in_safezone:
-                        explosion_time = current_time
                         game_over(bomb)
                         running = False  # ゲーム終了
                 elif 555 <= bomb.x <= 744 and 163 <= bomb.y <= 380:
                     if bomb.image == bombred_image and not bomb.in_safezone:
-                        explosion_time = current_time
                         game_over(bomb)
                         running = False  # ゲーム終了
                     elif bomb.image == bomb_image and not bomb.in_safezone:
@@ -322,7 +319,6 @@ while running:
             safezone_af(bomb)
         if current_time - bomb.created_time > 40 and explosion_time is None:
             game_over(bomb)
-            pygame.time.delay(2000)  # 2000ミリ秒（2秒）停止
             if bomb.dragging:
                 pass
             else:
