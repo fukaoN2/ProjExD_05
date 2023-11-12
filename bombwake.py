@@ -46,8 +46,8 @@ yellow_floor = pygame.image.load("ex05/data/yellow_lines.jpg")
 
 # ボムのリスト
 bombs = []
-safe_red = []
-safe_black = []
+safe_red = 0
+safe_black = 0
 
 def back():
     """
@@ -110,7 +110,7 @@ def bomb_mvdef(bomb):
         bomb.speed_y *= -1
 
     # 赤側safezone右辺
-    elif 148 <= bomb.x <= 174 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
+    elif 168 <= bomb.x <= 202 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
         bomb.speed_x *= -1
 
     # 黒側safezone左辺
@@ -155,7 +155,6 @@ def safezone_pl(bomb):
         return True
 
 def safezone_af(bomb):
-    print(f"Condition matched: x={bomb.x}, y={bomb.y}, speed_x={bomb.speed_x}")
     # ボムがsafezoneに接触したとき
     # 赤側safezone上辺
     if 24 <= bomb.x <= 194 and 163 <= bomb.y <= 203 and bomb.speed_y < 0:
@@ -178,7 +177,7 @@ def safezone_af(bomb):
         bomb.speed_x *= -1
 
     # 黒側safezone左辺
-    elif 537 <= bomb.x <= 563 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
+    elif 537 <= bomb.x <= 593 and 150 <= bomb.y <= 390 and bomb.speed_x < 0:
         bomb.speed_x *= -1
     # bomb.speed_x *= 0
     # bomb.speed_y *= 0
@@ -197,6 +196,9 @@ def game_over(bomb):
     
 # ボムクラスを定義
 class Bomb:
+    """
+    ボム兵を描写するためのクラス
+    """
     def __init__(self):
         self.x = screen_width // 2 - bomb_rect.width // 2
         self.y = 0
@@ -206,6 +208,7 @@ class Bomb:
         self.created_time = time.time()
         self.dragging = False
         self.image = None
+        self.in_safezone = False
 
 
     def set_random_speed(self):
@@ -236,7 +239,7 @@ class Score:
         self.rect.center = 100, screen_height-50
 
     def score_up(self):
-        self.score += 40
+        self.score += 5
 
     def update(self, screen: pygame.Surface):
         self.image = self.font.render(f"Score: {self.score}", 0, self.color)
@@ -258,24 +261,24 @@ while running:
     if current_time - next_bomb_spawn_time > bomb_spawn_interval / 1000:
         new_bomb = Bomb()  # 新しいボムのインスタンスを作成
         new_bomb.image = random.choice([bomb_image, bombred_image])  # ランダムにボムの画像を選択
-        if new_bomb == bomb_image:
-            b1 = 1
-        elif new_bomb == bombred_image:
-            b2 = 1
+        # if new_bomb == bomb_image:
+        #     b1 = 1
+        # elif new_bomb == bombred_image:
+        #     b2 = 1
         bombs.append(new_bomb)  # ボムをリストに追加
         next_bomb_spawn_time = current_time
         if cnt % 2 == 0 and bomb_spawn_interval >= 400:
             bomb_spawn_interval -= 100
         print(bomb_spawn_interval)
-        #safezone内のボム兵リストが40なるとscoreが40プラスされる
-        if len(safe_red) == 40:
+        #safezone内のボム兵が5体になるとscoreが5プラスされ、セーフゾーン内のボムの描画がけされる
+        if safe_red == 5:
             score.score_up()
-            bombs.clear()
-            safe_red.clear()
-        if len(safe_black) == 40:
+            bombs = [bomb for bomb in bombs if bomb.image != bombred_image]
+            safe_red = 0
+        if safe_black == 5:
             score.score_up()
-            bombs.clear()
-            safe_black.clear()
+            bombs = [bomb for bomb in bombs if bomb.image != bomb_image]
+            safe_black = 0
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -295,18 +298,24 @@ while running:
             for bomb in bombs:
                 bomb.dragging = False
                 if 24 <= bomb.x <= 174 and 163 <= bomb.y <= 380:
-                    if bomb.image == bombred_image:
+                    if bomb.image == bombred_image and not bomb.in_safezone:
+                        safe_red += 1
+                        bomb.in_safezone = True  # ボムがセーフゾーンに入ったことをマーク
+                        print(f"Red Safezone: {safe_red}")
                         safezone_af(bomb)
-                    elif bomb.image == bomb_image:
+                    elif bomb.image == bomb_image and not bomb.in_sefezone:
                         explosion_time = current_time
                         game_over(bomb)
                         running = False  # ゲーム終了
                 elif 555 <= bomb.x <= 744 and 163 <= bomb.y <= 380:
-                    if bomb.image == bombred_image:
+                    if bomb.image == bombred_image and not bomb.in_ssafezone:
                         explosion_time = current_time
                         game_over(bomb)
                         running = False  # ゲーム終了
-                    elif bomb.image == bomb_image:
+                    elif bomb.image == bomb_image and not bomb.in_safezone:
+                        safe_black += 1
+                        bomb.in_safezone = True  # ボムがセーフゾーンに入ったことをマーク
+                        print(f"Black Safezone: {safe_black}")
                         safezone_af(bomb)
     
     # ボムを移動して描画
