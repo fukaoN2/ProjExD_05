@@ -60,13 +60,6 @@ def bomb_mvdef(bomb):
     mv_x = bomb.speed_x * seconds * fps
     mv_y = bomb.speed_y * seconds * fps
 
-    if not(24 <= bomb.x <= 194 and 133 <= bomb.y <= 410) or(555 <= bomb.x <= 744 and 133 <= bomb.y <= 410):
-        # ボムがセーフゾーン外にいる場合
-        if current_time - bomb.created_time > 37:
-            # 37秒以上経過したらボムを停止
-            mv_x = 0
-            mv_y = 0
-
     bomb.x += mv_x
     bomb.y += mv_y
 
@@ -295,7 +288,6 @@ while running:
                     if bomb.image == bombred_image and not bomb.in_safezone:
                         safe_red += 1
                         bomb.in_safezone = True  # ボムがセーフゾーンに入ったことをマーク
-                        print(f"Red Safezone: {safe_red}")
                         safezone_af(bomb)
                     elif bomb.image == bomb_image and not bomb.in_safezone:
                         game_over(bomb)
@@ -307,7 +299,6 @@ while running:
                     elif bomb.image == bomb_image and not bomb.in_safezone:
                         safe_black += 1
                         bomb.in_safezone = True  # ボムがセーフゾーンに入ったことをマーク
-                        print(f"Black Safezone: {safe_black}")
                         safezone_af(bomb)
     
     # ボムを移動して描画
@@ -315,16 +306,22 @@ while running:
     for bomb in bombs:
         bomb_mvdef(bomb)
         if safezone_pl(bomb):
-            current_time = 100
+            bomb.created_time = current_time  # セーフゾーン内にいる場合、created_timeを更新
             safezone_af(bomb)
-        if current_time - bomb.created_time > 40 and explosion_time is None:
-            game_over(bomb)
-            if bomb.dragging:
-                pass
-            else:
-                bombs_to_remove.append(bomb)
-                for bomb in bombs_to_remove:
-                    bombs.remove(bomb)
+        elif not safezone_pl(bomb):
+            # ボムがセーフゾーン外にいる場合
+            if current_time - bomb.created_time > 7:
+                # 7秒が経過したらボムを停止
+                bomb.speed_x = 0
+                bomb.speed_y = 0
+            if current_time - bomb.created_time > 10 and explosion_time is None:
+                game_over(bomb)
+                if not bomb.dragging:
+                    bombs_to_remove.append(bomb)
+
+    # ボムをリストから削除
+    for bomb in bombs_to_remove:
+        bombs.remove(bomb)
 
     clock.tick()
     score.update(screen)
