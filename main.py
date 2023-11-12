@@ -13,10 +13,10 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("ゲームメニュー")
 
 # 背景画像の読み込み
-background = pygame.image.load("ex05/deta/start.png")
+background = pygame.image.load("main/ex05/data/start.png")
 
 #背景音楽の読み込み
-pygame.mixer.music.load("ex05/deta/rule.mp3")
+pygame.mixer.music.load("ex05/data/rule.mp3")
 pygame.mixer.music.play(-1)
 
 # メニューテキストのフォント設定
