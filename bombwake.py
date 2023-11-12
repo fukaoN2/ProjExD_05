@@ -21,6 +21,10 @@ clock = pygame.time.Clock()
 background = pygame.image.load("ex05/data/background.png")
 
 
+#背景音楽の読み込み
+pygame.mixer.music.load("ex05/deta/BGM.mp3")
+pygame.mixer.music.play(-1)
+
 # ボムの設定
 bomb_image = pygame.image.load("ex05/data/bom1.png")
 bombred_image = pygame.image.load("ex05/data/bomred2.png")
