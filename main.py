@@ -107,7 +107,7 @@ while True:
                     # アニメーションの実行
                     run_image_animation()
                     
-                    subprocess.run(["python", "bombwake.py"])
+                    subprocess.run(["python", "ex05/bombwake.py"])
                     
                     pygame.quit()
                     sys.exit()
