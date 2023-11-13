@@ -2,7 +2,6 @@ import pygame
 import random
 import math
 import time
-import sys
 
 # Pygameの初期化
 pygame.init()
@@ -38,7 +37,7 @@ next_bomb_spawn_time = 0
 # 爆発gif
 gif = pygame.image.load("ex05/data/explosion.gif")
 
-#格子の追加
+# 格子の追加
 black_floor = pygame.image.load("ex05/data/black.png")
 red_floor = pygame.image.load("ex05/data/red.png")
 yellow_floor = pygame.image.load("ex05/data/yellow_lines.jpg")
@@ -121,7 +120,7 @@ def safezone_def():
     """
     外枠の描画(実装時に削除・反射を確認するために描画)
     """
-    # # 安全地帯の黄色の枠の範囲
+    # 安全地帯の黄色の枠の範囲
     # pygame.draw.rect(background,(255,241,0),(555,170,189,240))
     # pygame.draw.rect(background,(255,241,0),(24,170,190,240))
 
@@ -129,7 +128,7 @@ def safezone_def():
     screen.blit(yellow_floor, (583, 180))
     screen.blit(yellow_floor, (24, 180))
 
-    # # 安全地帯の黒と赤の四角の範囲
+    # 安全地帯の黒と赤の四角の範囲
     # pygame.draw.rect(background,(0,0,0),(575,190,170,200))
     # pygame.draw.rect(background,(255,0,0),(24,190,169,200))
 
@@ -181,12 +180,20 @@ def game_over(bomb):
     bomb.speed_x = 0
     bomb.speed_y = 0
     gif_rect = gif.get_rect()
-    gif_x = bomb.x + (bomb_rect.width - gif_rect.width) / 2
-    gif_y = bomb.y + (bomb_rect.height - gif_rect.height) / 2
-    screen.blit(gif, (gif_x, gif_y))
-    pygame.display.update()  # 画面を更新して爆発を表示
+    gif_width = 1000
+    gif_height = int(gif_rect.height * (gif_width / gif_rect.width))
+    gif_scaled = pygame.transform.scale(gif, (gif_width, gif_height))
+    
+    gif_x = (bomb.x + (bomb_rect.width - gif_width) / 2) - 80
+    gif_y = (bomb.y + (bomb_rect.height - gif_height) / 2) + 10
+    
+    screen.blit(gif_scaled, (gif_x, gif_y))
     bombs.remove(bomb)
-    pygame.time.delay(2000)  # 2000ミリ秒（2秒）停止
+    score.update(screen)
+    pygame.display.update() # 画面を更新して爆発とスコアを表示
+    pygame.time.delay(3000)
+    global running # ゲーム終了のフラグを設定
+    running = False
     
     
 class Bomb:
@@ -239,6 +246,7 @@ class Score:
         self.image = self.font.render(f"Score: {self.score}", 0, self.color)
         screen.blit(self.image, self.rect)
 
+
 cnt = 0
 score = Score()
 # ゲームループ
@@ -258,7 +266,7 @@ while running:
         next_bomb_spawn_time = current_time
         if cnt % 2 == 0 and bomb_spawn_interval >= 400:
             bomb_spawn_interval -= 100
-        print(bomb_spawn_interval)
+        #print(bomb_spawn_interval)
         
     # セーフゾーン内のボムを抽出
     safe_red_bombs = [bomb for bomb in bombs if bomb.in_safezone and bomb.image == bombred_image]
@@ -296,18 +304,15 @@ while running:
                         safezone_af(bomb)
                     elif bomb.image == bomb_image and not bomb.in_safezone:
                         game_over(bomb)
-                        running = False  # ゲーム終了
                 elif 555 <= bomb.x <= 744 and 163 <= bomb.y <= 380:
                     if bomb.image == bombred_image and not bomb.in_safezone:
                         game_over(bomb)
-                        running = False  # ゲーム終了
                     elif bomb.image == bomb_image and not bomb.in_safezone:
                         safe_black += 1
                         bomb.in_safezone = True  # ボムがセーフゾーンに入ったことをマーク
                         safezone_af(bomb)
     
     # ボムを移動して描画
-    bombs_to_remove = []
     for bomb in bombs:
         bomb_mvdef(bomb)
         if safezone_pl(bomb):
@@ -315,18 +320,13 @@ while running:
             safezone_af(bomb)
         elif not safezone_pl(bomb):
             # ボムがセーフゾーン外にいる場合
-            if current_time - bomb.created_time > 7:
-                # 7秒が経過したらボムを停止
+            if current_time - bomb.created_time > 17:
+                # 17秒が経過したらボムを停止
                 bomb.speed_x = 0
                 bomb.speed_y = 0
-            if current_time - bomb.created_time > 10 and explosion_time is None:
+            if current_time - bomb.created_time > 20 and explosion_time is None:
+                # 20秒が経過したらボムを爆発
                 game_over(bomb)
-                if not bomb.dragging:
-                    bombs_to_remove.append(bomb)
-
-    # ボムをリストから削除
-    for bomb in bombs_to_remove:
-        bombs.remove(bomb)
 
     clock.tick()
     score.update(screen)
