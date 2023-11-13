@@ -191,6 +191,7 @@ def game_over(bomb):
     global running
     running = False
     
+    
 class Bomb:
     """
     ボム兵を描写するためのクラス
@@ -240,6 +241,7 @@ class Score:
     def update(self, screen: pygame.Surface):
         self.image = self.font.render(f"Score: {self.score}", 0, self.color)
         screen.blit(self.image, self.rect)
+
 
 cnt = 0
 score = Score()
