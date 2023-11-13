@@ -17,6 +17,10 @@ pygame.display.set_caption("ボムへいをわけろ！")
 # フレームを管理する時計をclockに格納
 clock = pygame.time.Clock()
 
+# フレームを管理する時計をclockに格納
+clock = pygame.time.Clock()
+
+# 背景画像の読み込み
 # 背景画像の読み込み
 background = pygame.image.load("data/background.png")
 
@@ -323,6 +327,7 @@ while running:
     # 画面更新
     #print(bomb.dragging)
     pygame.display.update()
+    clock.tick(fps)
     clock.tick(fps)
 
 # Pygameの終了
