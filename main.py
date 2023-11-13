@@ -13,10 +13,10 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("ゲームメニュー")
 
 # 背景画像の読み込み
-background = pygame.image.load("data\start.png")
+background = pygame.image.load("ex05/data/start.png")
 
 #背景音楽の読み込み
-pygame.mixer.music.load("data/rule.mp3")
+pygame.mixer.music.load("ex05/data/rule.mp3")
 pygame.mixer.music.play(-1)
 
 # メニューテキストのフォント設定
@@ -39,7 +39,7 @@ def run_image_animation():
     pygame.display.set_caption("画像拡大アニメーション")
 
     # 画像を読み込む（適切な画像ファイル名を使用してください）
-    image = pygame.image.load("data/ダウンロード.png")
+    image = pygame.image.load("ex05/data/ダウンロード.png")
 
     # 初期サイズ
     width, height = 1600, 1200
@@ -107,7 +107,7 @@ while True:
                     # アニメーションの実行
                     run_image_animation()
                     
-                    subprocess.run(["python", "bombwake.py"])
+                    subprocess.run(["python", "ex05/bombwake.py"])
                     
                     pygame.quit()
                     sys.exit()
@@ -139,7 +139,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("ゲームメニュー")
 
 # 背景画像の読み込み
-background = pygame.image.load("main/ex05/data/start.png")
+background = pygame.image.load("ex05/data/start.png")
 
 #背景音楽の読み込み
 pygame.mixer.music.load("ex05/data/rule.mp3")
@@ -164,8 +164,8 @@ def run_image_animation():
     screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption("画像拡大アニメーション")
 
-    # 画像を読み込む（適切な画像ファイル名を使用してください）
-    image = pygame.image.load("ex05/deta/ダウンロード.png")
+    # 画像を読み込む
+    image = pygame.image.load("ex05/data/ダウンロード.png")
 
     # 初期サイズ
     width, height = 1600, 1200
