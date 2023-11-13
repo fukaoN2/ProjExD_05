@@ -188,12 +188,11 @@ def game_over(bomb):
     gif_y = (bomb.y + (bomb_rect.height - gif_height) / 2) + 10
     
     screen.blit(gif_scaled, (gif_x, gif_y))
-    pygame.display.update()  # 画面を更新して爆発を表示
     bombs.remove(bomb)
     score.update(screen)
-    pygame.display.update() # 画面を更新してスコアを表示
+    pygame.display.update() # 画面を更新して爆発とスコアを表示
     pygame.time.delay(3000)
-    global running
+    global running # ゲーム終了のフラグを設定
     running = False
     
     
