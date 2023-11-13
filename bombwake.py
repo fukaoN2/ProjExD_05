@@ -18,16 +18,16 @@ pygame.display.set_caption("ボムへいをわけろ！")
 clock = pygame.time.Clock()
 
 # 背景画像の読み込み
-background = pygame.image.load("ex05/data/background.png")
+background = pygame.image.load("data/background.png")
 
 
 #背景音楽の読み込み
-pygame.mixer.music.load("ex05/deta/BGM.mp3")
+pygame.mixer.music.load("data/BGM.mp3")
 pygame.mixer.music.play(-1)
 
 # ボムの設定
-bomb_image = pygame.image.load("ex05/data/bom1.png")
-bombred_image = pygame.image.load("ex05/data/bomred2.png")
+bomb_image = pygame.image.load("data/bom1.png")
+bombred_image = pygame.image.load("data/bomred2.png")
 bomb_image = pygame.transform.rotozoom(bomb_image, 0, 0.11)
 bombred_image = pygame.transform.rotozoom(bombred_image, 0, 0.11)
 bomb_rect = bomb_image.get_rect()
@@ -41,12 +41,12 @@ c1 = 0
 c2 = 0
 
 # 爆発gif
-gif = pygame.image.load("ex05/data/explosion.gif")
+gif = pygame.image.load("data/explosion.gif")
 
 #格子の追加
-black_floor = pygame.image.load("ex05/data/black.png")
-red_floor = pygame.image.load("ex05/data/red.png")
-yellow_floor = pygame.image.load("ex05/data/yellow_lines.jpg")
+black_floor = pygame.image.load("data/black.png")
+red_floor = pygame.image.load("data/red.png")
+yellow_floor = pygame.image.load("data/yellow_lines.jpg")
 
 # ボムクラスを定義
 class Bomb:
