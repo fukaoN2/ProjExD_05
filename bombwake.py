@@ -180,13 +180,18 @@ def game_over(bomb):
     bomb.speed_x = 0
     bomb.speed_y = 0
     gif_rect = gif.get_rect()
-    gif_x = (bomb.x + (bomb_rect.width - gif_rect.width) / 2) - 20
-    gif_y = (bomb.y + (bomb_rect.height - gif_rect.height) / 2) + 10
-    screen.blit(gif, (gif_x, gif_y))
+    gif_width = 1000
+    gif_height = int(gif_rect.height * (gif_width / gif_rect.width))
+    gif_scaled = pygame.transform.scale(gif, (gif_width, gif_height))
+    
+    gif_x = (bomb.x + (bomb_rect.width - gif_width) / 2) - 80
+    gif_y = (bomb.y + (bomb_rect.height - gif_height) / 2) + 10
+    
+    screen.blit(gif_scaled, (gif_x, gif_y))
     pygame.display.update()  # 画面を更新して爆発を表示
     bombs.remove(bomb)
     score.update(screen)
-    pygame.display.update()
+    pygame.display.update() # 画面を更新してスコアを表示
     pygame.time.delay(3000)
     global running
     running = False
