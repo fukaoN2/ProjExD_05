@@ -122,9 +122,9 @@ while True:
                     pygame.mixer.music.stop()
                     # アニメーションの実行
                     run_image_animation()
-                    
+
                     subprocess.run(["python", "ex05/bombwake.py"])
-                    
+
                     pygame.quit()
                     sys.exit()
 

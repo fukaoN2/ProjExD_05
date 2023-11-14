@@ -257,6 +257,7 @@ while running:
     back()
     safezone_def()
 
+
     # 新しいボムを生成するタイミングを管理
     current_time = time.time()
     if current_time - next_bomb_spawn_time > bomb_spawn_interval / 1000:
@@ -264,10 +265,11 @@ while running:
         new_bomb.image = random.choice([bomb_image, bombred_image])  # ランダムにボムの画像を選択
         bombs.append(new_bomb)  # ボムをリストに追加
         next_bomb_spawn_time = current_time
-        if cnt % 2 == 0 and bomb_spawn_interval >= 400:
+        cnt += 1
+        if cnt % 2 == 0 and bomb_spawn_interval >= 500:
             bomb_spawn_interval -= 100
-        #print(bomb_spawn_interval)
-        
+        print(bomb_spawn_interval)
+
     # セーフゾーン内のボムを抽出
     safe_red_bombs = [bomb for bomb in bombs if bomb.in_safezone and bomb.image == bombred_image]
     safe_black_bombs = [bomb for bomb in bombs if bomb.in_safezone and bomb.image == bomb_image]
@@ -291,7 +293,7 @@ while running:
                 bomb_yval = bomb.y - int(pygame.mouse.get_pos()[1]) 
                 bomb_xval = abs(bomb_xval)
                 bomb_yval = abs(bomb_yval)
-                
+
                 if bomb_xval <= 50 and bomb_yval <= 50:
                     bomb.dragging = True
         elif event.type == pygame.MOUSEBUTTONUP:
