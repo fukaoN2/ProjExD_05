@@ -268,7 +268,7 @@ while running:
         cnt += 1
         if cnt % 2 == 0 and bomb_spawn_interval >= 500:
             bomb_spawn_interval -= 100
-        print(bomb_spawn_interval)
+        # print(bomb_spawn_interval)
 
     # セーフゾーン内のボムを抽出
     safe_red_bombs = [bomb for bomb in bombs if bomb.in_safezone and bomb.image == bombred_image]
